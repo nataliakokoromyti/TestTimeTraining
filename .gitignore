@@ -234,3 +234,13 @@ gpu_mode/kernel_compare.tsv
 gpu_mode/gpu_scores.tsv
 
 tinker_log/
+  logs/
+  wandb/
+  **/wandb/
+  *.html
+  *.wandb
+  *.parquet
+  *.tgz
+  *.tar.gz
+  __pycache__/
+  *.pyc

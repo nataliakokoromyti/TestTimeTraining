@@ -433,7 +433,6 @@ def parse_arguments():
     
     # Other options
     parser.add_argument("--dry-run", action="store_true", help="Print job configuration without submitting")
-    parser.add_argument("--local", action="store_true", help="Run locally instead of submitting to SLURM")
     
     # Parse known args to separate submitit args from hydra overrides
     args, unknown_args = parser.parse_known_args()
@@ -450,8 +449,7 @@ def submit_job(args, hydra_overrides):
     
     # Setup job directory
     job_dir = Path(args.job_dir) / date_str / time_str
-    if not args.local:
-        job_dir.mkdir(parents=True, exist_ok=True)
+    job_dir.mkdir(parents=True, exist_ok=True)
     
     # Initialize submitit executor
     executor = submitit.AutoExecutor(folder=job_dir, cluster="slurm")
@@ -506,11 +504,6 @@ def submit_job(args, hydra_overrides):
         print(f"  SLURM parameters: {slurm_kwargs}")
         print(f"  Hydra overrides: {hydra_overrides}")
         print(f"  Auto-requeue: {args.auto_requeue} (max: {args.max_requeue})")
-        return None
-    
-    if args.local:
-        print("Running locally...")
-        job()
         return None
     
     # Submit job

@@ -5,6 +5,7 @@ from tinker_cookbook.utils import logtree
 from tasks.gpu_mode.task import run_gpu_mode_task
 from tasks.gpu_mode.prompt_trimul import TRIMUL_IMPROVEMENT_TEMPLATE_V0
 from tasks.gpu_mode.prompt_mla_decode import MLA_DECODE_PROMPT_V1, MLA_DECODE_IMPROVEMENT_TEMPLATE_V1
+from tasks.gpu_mode.prompt_nvfp4_group_gemm import NVFP4_GROUP_GEMM_IMPROVEMENT_TEMPLATE_V1
 
 from tinker_cookbook.recipes.ttt.state import GpuModeState, State
 from tinker_cookbook.recipes.ttt.env_ttt import BaseTTTEnv
@@ -47,6 +48,13 @@ class GpuModeEnv(BaseTTTEnv):
                 self.task_name = "mla_decode_nvidia"
                 self.score_scale = self.config.gpu_mode_score_scale
                 self.app_name = "discord-bot-runner-mla-decode-nvidia"
+            case "nvfp4_group_gemm":
+                self.improvement_prompt = NVFP4_GROUP_GEMM_IMPROVEMENT_TEMPLATE_V1
+                self.target = 0  # Unknown target; optimize runtime
+                self.gpu_type = "B200"
+                self.task_name = "nvfp4_group_gemm"
+                self.score_scale = self.config.gpu_mode_score_scale
+                self.app_name = "discord-bot-runner"
             case _:
                 raise ValueError(f"Unknown dataset name: {self.dataset_name}")
         
@@ -90,6 +98,10 @@ class GpuModeEnv(BaseTTTEnv):
             if (parsed_code is None) or (parsed_code.strip() == '') or ("@triton.jit" not in parsed_code):  # triton check, must write a kernel
                 return False
             
+            return True
+        elif self.dataset_name == "nvfp4_group_gemm":
+            if (parsed_code is None) or (parsed_code.strip() == '') or ("def custom_kernel" not in parsed_code):
+                return False
             return True
         
         else:

@@ -5,6 +5,7 @@ Helper script to run tasks on Modal directly, using task definitions.
 Supported tasks:
   - trimul: BioML TriMul task (bioml/trimul/task.yml)
   - mla_decode_nvidia: AMD MLA Decode task running on Nvidia GPUs (nvidia/mla_decode_nvidia/task.yml)
+  - nvfp4_group_gemm: NVFP4 group GEMM task (nvfp4_group_gemm/task.yml)
 
 Usage (from project root):
     uv run python src/run_trimul_modal.py --submission path/to/submission.py --task trimul
@@ -32,6 +33,7 @@ from libkernelbot.task import LeaderboardTask, build_task_config, make_task_defi
 PROJECT_ROOT = Path(__file__).resolve().parent
 TRIMUL_TASK_YAML = PROJECT_ROOT / "bioml" / "trimul" / "task.yml"
 MLA_DECODE_NVIDIA_TASK_YAML = PROJECT_ROOT / "mla-decode" / "task.yml"
+NVFP4_GROUP_GEMM_TASK_YAML = PROJECT_ROOT / "nvfp4_group_gemm" / "task.yml"
 
 
 class SimpleReporter(RunProgressReporter):
@@ -59,6 +61,7 @@ def load_task(task_name: str = "trimul") -> LeaderboardTask:
     task_map = {
         "trimul": TRIMUL_TASK_YAML,
         "mla_decode_nvidia": MLA_DECODE_NVIDIA_TASK_YAML,
+        "nvfp4_group_gemm": NVFP4_GROUP_GEMM_TASK_YAML,
     }
     
     if task_name not in task_map:
@@ -89,7 +92,7 @@ async def run_on_modal(
         submission_code: Contents of the user's `submission.py`
         gpu_type: One of ModalGPU names (T4, L4, A100, H100, B200, L4x4)
         mode: One of: test, benchmark, leaderboard, profile, private
-        task_name: One of "trimul" or "mla_decode_nvidia"
+    task_name: One of "trimul", "mla_decode_nvidia", or "nvfp4_group_gemm"
     """
     # Load task from task YAML
     task = load_task(task_name)
@@ -232,7 +235,7 @@ def parse_args() -> argparse.Namespace:
         "--task",
         "-t",
         default="trimul",
-        choices=["trimul", "mla_decode_nvidia"],
+        choices=["trimul", "mla_decode_nvidia", "nvfp4_group_gemm"],
         help="Task to run (default: trimul).",
     )
     parser.add_argument(

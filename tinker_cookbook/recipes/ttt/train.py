@@ -27,21 +27,21 @@ class CLIConfig:
     load_checkpoint_path: str | None = None
 
     # Environment configuration
-    env: str = "cp"  # Options: cp, ac1, ac2
-    dataset_path: str = "ttt-ttt9/xh-gptoss-v6-2-rule-apply-single-turn-prior-with-val-pub"
+    env: str = "trimul"  # Options: trimul, mla_decode_nvidia
+    dataset_path: str = "gpu_mode"
     seed: int = 0  # Random seed for data shuffling
     problem_idx: str = "1818057f"
     test_num_rollouts: int = 1
     # Training hyperparameters
-    group_size: int = 8
-    groups_per_batch: int = 64
+    group_size: int = 64
+    groups_per_batch: int = 8
     learning_rate: float = 4e-5
     num_epochs: int = 50
-    max_tokens: int = 26000
+    max_tokens: int = 32768
     temperature: float = 1.0
-    kl_penalty_coef: float = 0.0
-    adv_estimator: str="entropic"
-    adv_estimator_beta: float = 2.0
+    kl_penalty_coef: float = 0.1
+    adv_estimator: str = "entropic_adaptive_beta"
+    adv_estimator_beta: float = 0.693147  # log(2)
     gpu_mode_score_scale: float = 3000.0  # scale reciprocal reward
     
     # Number of optimizer steps per training iteration.
@@ -74,7 +74,7 @@ class CLIConfig:
     num_cpus_per_task: int = 1
     eval_timeout: int = 1000
     dataset_timeout: int = 1000
-    sampler_type: str = "greedy"
+    sampler_type: str = "puct_backprop"
     initial_exp_type: str = "random"  # "best_available", "none", "random"
 
     # BoN mode
@@ -85,7 +85,7 @@ class CLIConfig:
     dynamic_max_tokens: bool = True
     
     # Two-phase sampling: if model exhausts phase1 tokens without stop, force completion
-    two_phase_sampling: bool = False
+    two_phase_sampling: bool = True
     phase1_max_tokens: int = 26000
     
     # Local model path (avoids HuggingFace API rate limits)

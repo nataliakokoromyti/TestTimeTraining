@@ -172,6 +172,8 @@ def create_initial_state(env_type: str, initial_exp_type: str, budget_s: int = 1
     elif env_type == "trimul":
         # No initial code or value for trimul
         return GpuModeState(timestep=timestep, code="", value=initial_value)
+    elif env_type == "nvfp4_group_gemm":
+        return GpuModeState(timestep=timestep, code="", value=initial_value)
     elif env_type == "ahc039":
         if initial_exp_type == "best_available":
             from tasks.ale_bench.best_available import AHC039_BEST_CODE, AHC039_BEST_CODE_VALUE
