@@ -14,7 +14,7 @@ unset RAY_ADDRESS
 
 # W&B config
 wandb_project="ttt-discover-gpu"
-wandb_name="mla-decode-seed0"
+wandb_name="nvfp4-group-gemm-seed0"
 
 # Cluster config
 nnodes=4
@@ -27,7 +27,7 @@ python main_tinker_submitit.py \
   --partition "${partition}" \
   --account "${account}" \
   --cpus-per-task "${cpus_per_task}" \
-  env=mla_decode_nvidia \
+  env=nvfp4_group_gemm \
   model_name="openai/gpt-oss-120b" \
   lora_rank=32 \
   learning_rate=4e-5 \
