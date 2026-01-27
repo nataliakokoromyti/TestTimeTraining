@@ -10,7 +10,7 @@ from modal import App, Image  # pyright: ignore[reportMissingImports]
 
 from modal_runner import modal_run_config
 
-TASK = "mla_decode_nvidia"
+TASK = "nvfp4_group_gemm"
 
 if TASK == "trimul":
     ## TRIMUL Image
@@ -82,7 +82,54 @@ elif TASK == "mla_decode_nvidia":
             "python3-pip",
             "python3-setuptools",
             "python3-wheel",
-            "libpython3.12",
+            "libpython3.11",
+        )
+        .pip_install(
+            "pip",
+            extra_options="--upgrade",
+        )
+        .pip_install(
+            "ninja",
+            "wheel",
+            "packaging",
+            "numpy",
+            "tinygrad",
+        )
+        .pip_install(
+            "torch==2.8.0",
+            index_url="https://download.pytorch.org/whl/cu129",
+        )
+        # nvidia cuda packages
+        .pip_install(
+            "nvidia-cupynumeric~=25.3",
+            "nvidia-cutlass-dsl~=4.0",
+            "cuda-core[cu12]~=0.3",
+            "cuda-python[all]==12.8",
+        )
+    )
+elif TASK == "nvfp4_group_gemm":
+    app = App("discord-bot-runner")
+    cuda_version = "12.9.0"
+    flavor = "devel"
+    operating_sys = "ubuntu24.04"
+    tag = f"{cuda_version}-{flavor}-{operating_sys}"
+    cuda_image = (
+        Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.12")
+        .apt_install(
+            "git",
+            "gcc",
+            "g++",
+            "clang",
+            "lld",
+            "cmake",
+            "ninja-build",
+            "wget",
+            "curl",
+            "ca-certificates",
+            "python3-dev",
+            "python3-pip",
+            "python3-setuptools",
+            "python3-wheel",
         )
         .pip_install(
             "pip",
