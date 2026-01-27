@@ -1522,6 +1522,7 @@ async def main(
             RLTestSetEvaluator(
                 maybe_test_dataset,
                 max_tokens=cfg.max_tokens,
+                dynamic_max_tokens=cfg.dynamic_max_tokens,
                 num_rollouts=cfg.test_num_rollouts,
             )
         )
