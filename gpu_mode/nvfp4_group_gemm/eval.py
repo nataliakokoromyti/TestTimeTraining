@@ -6,6 +6,7 @@ import time
 import os
 import sys
 import math
+import json
 
 # Disable CuTe DSL file caching for more stable benchmarking
 os.environ["CUTE_DSL_DISABLE_FILE_CACHING"] = "1"
@@ -52,6 +53,23 @@ class PopcornOutput:
     def log(self, key, value):
         self.print(f"{key}: {value}")
 
+
+def _get_kernel_code_b64():
+    try:
+        code = Path("submission.py").read_text()
+        return base64.b64encode(code.encode("utf-8")).decode("utf-8")
+    except Exception:
+        return ""
+
+def _log_kernel(logger, prefix, correct, performance, message):
+    logger.log(f"{prefix}.correct", str(correct).lower())
+    if performance is not None:
+        logger.log(f"{prefix}.performance", performance)
+    if message:
+        logger.log(f"{prefix}.message", message)
+    code_b64 = _get_kernel_code_b64()
+    if code_b64:
+        logger.log(f"{prefix}.code_b64", code_b64)
 
 @dataclasses.dataclass
 class TestCase:
@@ -210,6 +228,7 @@ def run_testing(
     for idx, test in enumerate(tests):
         logger.log(f"test.{idx}.spec", test.spec)
         good, message = run_single_test(pool, test)
+        _log_kernel(logger, f"test.{idx}", good, None, message if not good else "")
         if not good:
             logger.log(f"test.{idx}.status", "fail")
             logger.log(f"test.{idx}.error", message)
@@ -349,6 +368,10 @@ def run_benchmarking(
     for idx, test in enumerate(tests):
         logger.log(f"benchmark.{idx}.spec", test.spec)
         result = run_single_benchmark(pool, test, False, 100, 10e9)
+        if isinstance(result, Stats):
+            _log_kernel(logger, f"benchmark.{idx}", True, result.mean, None)
+        else:
+            _log_kernel(logger, f"benchmark.{idx}", False, None, str(result))
         if isinstance(result, Stats):
             for field in dataclasses.fields(Stats):
                 logger.log(f"benchmark.{idx}.{field.name}", getattr(result, field.name))
@@ -499,6 +522,10 @@ def main():
                 passed = True
                 for i in range(len(tests)):
                     result = run_single_benchmark(pool, tests[i], True, 100, 30e9)
+                    if isinstance(result, Stats):
+                        _log_kernel(logger, f"benchmark.{i}", True, result.mean, None)
+                    else:
+                        _log_kernel(logger, f"benchmark.{i}", False, None, str(result))
                     logger.log(f"benchmark.{i}.spec", tests[i].spec)
                     if isinstance(result, Stats):
                         for field in dataclasses.fields(Stats):
